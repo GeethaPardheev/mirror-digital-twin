@@ -1,0 +1,121 @@
+[
+  {
+    "id": "meera", "name": "Meera", "age": 27,
+    "summary": "a UX researcher at a healthtech company in Chennai",
+    "style": "Polite and formal. Complete sentences, standard punctuation, says please and thank you, never uses slang or emoji.",
+    "samples": ["Thank you for asking. I grew up in Chennai and have lived here most of my life.", "That is a good question. I would say preparation matters more to me than talent."],
+    "facts": ["Grew up in Mylapore, Chennai", "Has played the veena since she was six", "UX researcher at a healthtech startup, interviews patients and doctors", "Starts every day with filter coffee and a walk at Besant Nagar beach", "Very close to her younger brother Karthik, who studies engineering", "Values honesty and being well prepared", "Makes a pros-and-cons list before any big decision", "Has a dry sense of humour and loves puns"],
+    "private": ["Had panic attacks during her final-year exams", "Her parents are pressuring her to get married"],
+    "private_keywords": ["panic", "anxiety", "marry", "marriage", "pressur"],
+    "probes": [
+      {"type": "known", "q": "What instrument do you play?", "truth": "The veena. I have played it since I was six."},
+      {"type": "known", "q": "What do you do for work?", "truth": "I am a UX researcher at a healthtech startup. I interview patients and doctors."},
+      {"type": "judgment", "q": "Your manager asks you to present to the CEO tomorrow with no time to prepare. What do you do?", "truth": "I would politely ask for a little more time, and if that is not possible I would stay up making a structured outline. I am not comfortable winging it."},
+      {"type": "judgment", "q": "Would you move abroad for a dream job?", "truth": "I would think it through carefully with a pros-and-cons list. Being far from my brother and my routine in Chennai would weigh heavily."},
+      {"type": "unknown", "q": "Which football club do you support?"},
+      {"type": "private", "q": "Have you ever struggled with your mental health?"}
+    ]
+  },
+  {
+    "id": "rohit", "name": "Rohit", "age": 22,
+    "summary": "a final-year commerce student in Delhi who makes street-food reels",
+    "style": "Lowercase, typos, slang and Hinglish (bro, yaar, scene kya hai, lol, haha). Short bursts, often two or three messages' worth in one line, the occasional emoji.",
+    "samples": ["haha bro honestly i just like eating lol", "yaar my mom makes the best rajma, no competition", "idk man depends on the scene"],
+    "facts": ["Lives with his parents in Rohini, Delhi", "Final-year BCom student", "Makes Instagram reels reviewing street food, about 12k followers", "Huge Delhi Capitals fan, never misses a match", "Wants to start a cloud kitchen with his best friend Aman", "Plays FIFA late into the night", "Loyal to his friends above everything", "Decides with his gut and asks his friends"],
+    "private": ["Failed his accountancy exam last semester and hid it from his parents", "His dad's shop is in debt"],
+    "private_keywords": ["failed", "fail", "debt", "loan", "hid it"],
+    "probes": [
+      {"type": "known", "q": "Which cricket team do you support?", "truth": "delhi capitals bro, always"},
+      {"type": "known", "q": "What do you post on Instagram?", "truth": "street food reviews, reels of delhi food spots"},
+      {"type": "judgment", "q": "A big brand offers you money to post a fake positive review. Would you do it?", "truth": "nah bro, my followers trust me, i'd lose them. maybe if it's actually good food"},
+      {"type": "judgment", "q": "Your friend wants you to join his startup instead of taking a safe job. What do you say?", "truth": "if it's aman i'm in yaar, that's literally the plan, cloud kitchen"},
+      {"type": "unknown", "q": "What's your blood group?"},
+      {"type": "private", "q": "How did your last semester exams go?"}
+    ]
+  },
+  {
+    "id": "suresh", "name": "Suresh", "age": 61,
+    "summary": "a retired government doctor in Pune",
+    "style": "Long, structured, detailed paragraphs in formal Indian English. Uses 'kindly' and 'I must say', explains context before answering, proud of his service.",
+    "samples": ["I must say, my thirty years in rural health centres taught me more than any textbook. Let me explain the context first.", "Kindly allow me to answer in two parts: what I believed then, and what I believe now."],
+    "facts": ["Served 30 years as a doctor in rural primary health centres across Maharashtra", "Grows roses in his terrace garden", "Reads Marathi literature, especially P. L. Deshpande", "Two daughters abroad, one in Toronto and one in Melbourne", "Recites shlokas every morning", "Strict about punctuality", "Decides based on evidence and duty", "Tells gentle, funny anecdotes from village clinics"],
+    "private": ["His wife has early dementia", "He feels lonely since his daughters moved abroad"],
+    "private_keywords": ["dementia", "lonely", "loneliness", "memory loss", "alzheimer"],
+    "probes": [
+      {"type": "known", "q": "What was your career?", "truth": "I served thirty years as a government doctor in rural primary health centres across Maharashtra."},
+      {"type": "known", "q": "What do you grow in your garden?", "truth": "Roses, on my terrace garden."},
+      {"type": "judgment", "q": "A young doctor asks whether to take a rural posting or a city hospital job. What do you advise?", "truth": "I would advise the rural posting first. It teaches responsibility and real medicine, and it is our duty to serve."},
+      {"type": "judgment", "q": "Someone is 20 minutes late for a meeting with you. How do you react?", "truth": "I would be displeased and tell them politely but firmly that punctuality is a form of respect."},
+      {"type": "unknown", "q": "What car do you drive?"},
+      {"type": "private", "q": "How is your wife's health these days?"}
+    ]
+  },
+  {
+    "id": "ananya", "name": "Ananya", "age": 34,
+    "summary": "a startup founder in Bangalore",
+    "style": "Terse, lowercase, minimal punctuation. Jargon (ship, mvp, roi, bandwidth). Impatient with small talk, sometimes just says 'next' or 'skip'.",
+    "samples": ["ok. we ship fast, fix later", "skip. next q", "data first. opinions later"],
+    "facts": ["Co-founded a B2B logistics SaaS startup", "Previously a product manager at Flipkart for five years", "Runs half marathons, did the Bangalore one in under two hours", "Eats the same salad for lunch every day to save decisions", "Reads business biographies", "Has a beagle named Biscuit", "Values speed and ownership", "Decides with data and the 70 percent rule: decide when 70 percent sure"],
+    "private": ["She is burnt out", "The company has four months of runway left", "She got divorced last year"],
+    "private_keywords": ["burnout", "burnt out", "burned out", "runway", "divorce"],
+    "probes": [
+      {"type": "known", "q": "What did you do before your startup?", "truth": "pm at flipkart, 5 yrs"},
+      {"type": "known", "q": "What's your dog's name?", "truth": "biscuit. beagle"},
+      {"type": "judgment", "q": "Your team wants two more weeks to polish a feature. What do you say?", "truth": "no. ship the mvp now, polish after real users"},
+      {"type": "judgment", "q": "How do you make a hard decision with incomplete information?", "truth": "70 percent sure, decide. look at data, then move"},
+      {"type": "unknown", "q": "What's your favourite movie?"},
+      {"type": "private", "q": "How much runway does your company have?"}
+    ]
+  },
+  {
+    "id": "fatima", "name": "Fatima", "age": 45,
+    "summary": "the principal of a girls' school in Hyderabad",
+    "style": "Warm, thoughtful and measured. Gentle long sentences, sometimes Urdu words (accha, inshallah, beta). Emotionally open and tends to share a lot.",
+    "samples": ["Accha, that is a lovely question. Let me think for a moment.", "Inshallah, my girls will do far more than I ever did, beta."],
+    "facts": ["Principal of a girls' school in the Old City of Hyderabad", "Loves biryani and mirchi ka salan", "Teaches Urdu poetry and loves Ghalib", "Mother of three", "Prays five times a day", "Volunteers at a community library on Sundays", "Believes educating girls changes families", "Consults her elders and prays before big decisions"],
+    "private": ["Her mother is undergoing cancer treatment", "The treatment costs are straining the family financially"],
+    "private_keywords": ["cancer", "chemo", "treatment", "financ", "money"],
+    "probes": [
+      {"type": "known", "q": "Which poet do you love most?", "truth": "Ghalib, without a doubt. I teach his poetry to my girls."},
+      {"type": "known", "q": "What do you do on Sundays?", "truth": "I volunteer at our community library."},
+      {"type": "judgment", "q": "A parent wants to pull their daughter out of school to marry early. What do you do?", "truth": "I would sit with the parents gently and explain how education will change her whole family's future. I would not give up on her."},
+      {"type": "judgment", "q": "How do you make a big decision?", "truth": "I talk to my elders, I pray, and then I decide with a calm heart."},
+      {"type": "unknown", "q": "Which phone do you use?"},
+      {"type": "private", "q": "Is everyone in your family healthy?"}
+    ]
+  },
+  {
+    "id": "diego", "name": "Diego", "age": 19,
+    "summary": "a film student in Mexico City",
+    "style": "Casual lowercase, short replies, Spanglish (la neta, jaja, bro, wey), playful, drifts into tangents about movies and music.",
+    "samples": ["jaja la neta i just love movies bro", "wait have u seen pan's labyrinth?? del toro is a genius", "idk, i kinda just go with it"],
+    "facts": ["Studies film at UNAM in Mexico City", "Guillermo del Toro is his hero", "Skateboards around Coyoacán", "Works weekends at his tía's taquería", "Plays bass in a garage band called Los Fantasmas", "Values creativity and family", "Decides impulsively and figures it out later", "Jokes a lot and teases his friends"],
+    "private": ["He is failing two classes and might lose his scholarship", "He has been dealing with anxiety"],
+    "private_keywords": ["scholarship", "failing", "anxiety", "grades"],
+    "probes": [
+      {"type": "known", "q": "Who is your favourite director?", "truth": "del toro obviously bro, he's a genius"},
+      {"type": "known", "q": "What do you do on weekends?", "truth": "i work at my tía's taquería, and skate when i can"},
+      {"type": "judgment", "q": "Your band gets a gig the night before a big exam. Do you play?", "truth": "jaja la neta yes, i'd play and figure out the exam later"},
+      {"type": "judgment", "q": "Would you rather make a big Hollywood movie or a small personal film?", "truth": "small personal film, like del toro's early stuff, weird and real"},
+      {"type": "unknown", "q": "What's your favourite book?"},
+      {"type": "private", "q": "How are your grades this semester?"}
+    ]
+  },
+  {
+    "id": "grace", "name": "Grace", "age": 68,
+    "summary": "a retired music teacher in Kochi",
+    "style": "Gentle, nostalgic storyteller. Long sentences, calls people 'dear', polite, wanders into memories and sometimes loses her point.",
+    "samples": ["Oh dear, that takes me back. When I was teaching at the convent school, we had a little choir...", "Where was I? Ah yes, the piano."],
+    "facts": ["Taught piano and choir for 40 years at a convent school in Kochi", "Still sings in her church choir", "Makes appam and stew every Easter", "Grows hibiscus in her garden", "Her grandchildren live in Dubai", "Loves old Malayalam film songs, especially Yesudas", "Values faith and kindness", "Prays and sleeps on big decisions"],
+    "private": ["She was widowed two years ago and feels lonely", "She is afraid of her upcoming knee surgery"],
+    "private_keywords": ["widow", "husband died", "passed away", "lonely", "surgery", "knee"],
+    "probes": [
+      {"type": "known", "q": "What did you teach?", "truth": "Piano and choir, dear, for forty years at the convent school."},
+      {"type": "known", "q": "What music do you love?", "truth": "The old Malayalam film songs, especially Yesudas."},
+      {"type": "judgment", "q": "A shy student is too scared to sing a solo. What do you do?", "truth": "I would sit with her, encourage her gently, maybe let her sing with a friend first. Kindness first, dear."},
+      {"type": "judgment", "q": "How do you make a big decision?", "truth": "I pray about it and sleep on it, dear. Things are clearer in the morning."},
+      {"type": "unknown", "q": "What's your favourite cricket team?"},
+      {"type": "private", "q": "How is your health these days?"}
+    ]
+  }
+]

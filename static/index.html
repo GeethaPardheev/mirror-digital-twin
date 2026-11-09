@@ -1,0 +1,944 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mirror</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='12' cy='16' r='9' fill='none' stroke='%23F2A94E' stroke-width='2.6'/%3E%3Ccircle cx='20' cy='16' r='9' fill='none' stroke='%234CC3C9' stroke-width='2.6'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,300..700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+/* One visual world: a dark room with a living mirror. Amber is you, teal is your twin. */
+:root{
+  --bg:#05070A;--panel:#0B1117;--panel2:#101820;--ink:#EAF0F3;--muted:#8A9AA6;--faint:#56646F;--line:#1A242E;
+  --you:#F2A94E;--you-deep:#3A2913;--twin:#4CC3C9;--twin-deep:#0C3235;
+  --display:"Bricolage Grotesque","Avenir Next",system-ui,sans-serif;
+  --sans:"IBM Plex Sans",-apple-system,system-ui,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,"SF Mono",Menlo,monospace;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{margin:0;height:100%}
+body{background:radial-gradient(1100px 640px at 50% 16%,#0B1C22 0%,var(--bg) 62%);color:var(--ink);font:15px/1.55 var(--sans);
+  -webkit-font-smoothing:antialiased;overflow:hidden;display:flex;flex-direction:column}
+button,input,textarea{font:inherit;color:inherit}
+button{cursor:pointer;background:none;border:0}
+:focus-visible{outline:2px solid var(--twin);outline-offset:3px;border-radius:6px}
+.mono{font-family:var(--mono)}
+
+/* top bar */
+.top{display:flex;align-items:center;gap:16px;padding:16px 28px;position:relative;z-index:5}
+.brand{display:flex;align-items:center;gap:10px;font:650 21px/1 var(--display);letter-spacing:-.02em}
+.brand svg{width:26px;height:26px}
+.modes{position:absolute;left:50%;transform:translateX(-50%);display:flex;padding:4px;border-radius:999px;background:rgba(255,255,255,.04);border:1px solid var(--line)}
+.modes button{padding:8px 18px;border-radius:999px;color:var(--muted);font-weight:500;transition:color .2s,background .2s}
+.modes button[aria-selected="true"]{background:rgba(255,255,255,.08);color:var(--ink)}
+.right{margin-left:auto;display:flex;align-items:center;gap:8px}
+.badge-local{display:flex;align-items:center;gap:8px;font:500 11.5px var(--mono);color:var(--muted);padding:7px 12px;border:1px solid var(--line);border-radius:999px}
+.badge-local i{width:7px;height:7px;border-radius:50%;background:#5FCB8A;box-shadow:0 0 10px #5FCB8A}
+.icon-btn{width:38px;height:38px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted)}
+.icon-btn:hover,.icon-btn[aria-pressed="true"]{color:var(--ink);border-color:var(--faint)}
+.icon-btn svg{width:18px;height:18px}
+.menu{position:absolute;right:28px;top:62px;background:var(--panel2);border:1px solid var(--line);border-radius:12px;padding:6px;display:grid;min-width:200px;box-shadow:0 20px 50px rgba(0,0,0,.5)}
+.menu button{text-align:left;padding:10px 12px;border-radius:8px;color:var(--ink)}
+.menu button:hover{background:rgba(255,255,255,.06)}
+
+/* stage */
+.stage{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;padding:0 24px;position:relative}
+.orb-wrap{position:relative;width:min(520px,92vw);height:clamp(210px,34vh,340px);flex:none}
+#orb{width:100%;height:100%;display:block}
+.ring-tip{position:absolute;pointer-events:none;font:500 11.5px var(--mono);background:var(--panel2);border:1px solid var(--line);padding:5px 9px;border-radius:8px;white-space:nowrap;transform:translate(-50%,-130%)}
+.sparks{position:absolute;right:-250px;top:20px;width:240px;display:grid;gap:8px}
+.spark{font-size:12.5px;line-height:1.4;padding:9px 12px;border-radius:12px;background:rgba(11,17,23,.85);border:1px solid var(--line);animation:spark 4.2s ease forwards}
+.spark b{display:block;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-bottom:2px}
+.spark.you b{color:var(--you)}.spark.twin b{color:var(--twin)}.spark.mist b{color:var(--muted)}
+@keyframes spark{0%{opacity:0;transform:translateY(8px)}10%,80%{opacity:1;transform:none}100%{opacity:0;transform:translateX(-30px) scale(.96)}}
+.who{display:flex;flex-direction:column;align-items:center;gap:6px;margin-top:-6px}
+.who h1{margin:0;font:600 17px/1.2 var(--display);letter-spacing:-.01em}
+.who h1 .status{color:var(--muted);font-weight:400}
+.facts{display:flex;gap:18px;font-size:12.5px;color:var(--muted)}
+.facts b{color:var(--ink);font:500 13px var(--mono);font-variant-numeric:tabular-nums}
+.meet{margin-top:10px;font-size:13px;color:var(--twin);border:1px solid var(--twin-deep);background:rgba(76,195,201,.08);padding:7px 14px;border-radius:999px;animation:glow 2.4s ease-in-out infinite}
+@keyframes glow{50%{box-shadow:0 0 22px rgba(76,195,201,.25)}}
+
+/* conversation (teach) */
+.pane{width:min(820px,100%);flex:1;min-height:0;display:flex;flex-direction:column;justify-content:safe center;gap:14px;padding:12px 0 76px;overflow-y:auto}
+.pane>*{flex-shrink:0}
+.orb-wrap{transition:height .5s cubic-bezier(.2,.8,.2,1)}
+body.talk .orb-wrap{height:clamp(160px,25vh,250px)}
+.prev{font-size:14px;color:var(--muted);max-width:68ch;margin:0 auto;text-align:center;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.prev span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--you);margin-right:6px}
+.move{align-self:center;font:500 10.5px var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--twin);cursor:help}
+.lead{text-align:center;color:var(--muted);font:400 clamp(16px,1.6vw,19px)/1.45 var(--display);margin:0 auto;max-width:60ch}
+.question{text-align:center;font:500 clamp(25px,3.3vw,40px)/1.18 var(--display);letter-spacing:-.015em;margin:0 auto;max-width:24ch;text-wrap:balance;min-height:1.2em;animation:enter .5s ease}
+@keyframes enter{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.caret{display:inline-block;width:.08em;height:.9em;background:var(--twin);margin-left:.08em;vertical-align:-.08em;animation:caret 1s steps(2) infinite}
+@keyframes caret{50%{opacity:0}}
+.dots{display:inline-flex;gap:6px;vertical-align:middle}
+.dots i{width:8px;height:8px;border-radius:50%;background:var(--twin);opacity:.3;animation:dot 1.2s infinite}
+.dots i:nth-child(2){animation-delay:.18s}.dots i:nth-child(3){animation-delay:.36s}
+@keyframes dot{40%{opacity:1;transform:translateY(-3px)}}
+.thread{align-self:center;font-size:12.5px;color:var(--muted);border:1px dashed rgba(242,169,78,.45);padding:5px 12px;border-radius:999px}
+.thread b{color:var(--you);font-weight:500}
+.composer{margin-top:10px;display:flex;align-items:flex-end;gap:12px;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:18px;padding:12px 12px 12px 18px;transition:border-color .2s,box-shadow .2s}
+.composer:focus-within{border-color:rgba(242,169,78,.5);box-shadow:0 0 0 6px rgba(242,169,78,.06)}
+.composer textarea{flex:1;background:transparent;border:0;outline:none;resize:none;font-size:17px;line-height:1.5;max-height:180px;padding:6px 0}
+.composer textarea::placeholder{color:var(--faint)}
+.send{flex:none;width:44px;height:44px;border-radius:50%;background:var(--you);color:#1A1206;display:grid;place-items:center;transition:transform .15s,opacity .2s}
+.send:hover{transform:scale(1.05)}
+.send:disabled{opacity:.35;cursor:default;transform:none}
+.send svg{width:20px;height:20px}
+.below{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;font-size:12.5px;color:var(--faint)}
+.chips{display:flex;gap:8px;flex-wrap:wrap}
+.chips button{padding:6px 12px;border-radius:999px;border:1px solid var(--line);color:var(--muted);font-size:12.5px}
+.chips button:hover{color:var(--ink);border-color:var(--faint)}
+.learning{color:var(--twin);display:inline-flex;align-items:center;gap:8px}
+.learning::before{content:"";width:11px;height:11px;border-radius:50%;border:2px solid var(--twin-deep);border-top-color:var(--twin);animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* talk to twin */
+.ask{display:flex;gap:10px;align-items:center;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:18px;padding:8px 8px 8px 18px}
+.ask:focus-within{border-color:rgba(76,195,201,.5);box-shadow:0 0 0 6px rgba(76,195,201,.06)}
+.ask input{flex:1;background:transparent;border:0;outline:none;font-size:17px;padding:8px 0}
+.ask input::placeholder{color:var(--faint)}
+.ask .go{background:var(--twin);color:#04191B;font-weight:600;padding:10px 18px;border-radius:12px}
+.ask .surprise{color:var(--muted);border:1px solid var(--line);padding:9px 14px;border-radius:12px;font-size:13.5px;white-space:nowrap}
+.ask .surprise:hover{color:var(--ink)}
+.qa{display:grid;gap:12px;text-align:center;justify-items:center}
+.asked{font-size:14px;color:var(--muted);max-width:60ch}
+.asked span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--you);margin-right:6px}
+.tag{font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.tag.knows{color:var(--twin);border-color:rgba(76,195,201,.4);background:rgba(76,195,201,.07)}
+.tag.infers{color:var(--you);border-color:rgba(242,169,78,.4);background:rgba(242,169,78,.07)}
+.reply{font:400 clamp(19px,2vw,24px)/1.42 var(--display);letter-spacing:-.005em;max-width:42ch;text-wrap:pretty;margin:0}
+sup.cite{font:500 10px var(--mono);color:var(--twin);background:rgba(76,195,201,.12);border-radius:4px;padding:1px 4px;margin-left:2px;vertical-align:super}
+.why{font-size:13px;color:var(--muted);max-width:60ch;text-align:left}
+.why summary{cursor:pointer;list-style:none;text-align:center;color:var(--twin)}
+.why summary::-webkit-details-marker{display:none}
+.why ul{list-style:none;margin:10px 0 0;padding:0;display:grid;gap:8px}
+.why li{padding:10px 12px;border:1px solid var(--line);border-radius:12px;background:rgba(255,255,255,.02)}
+.why q{display:block;margin-top:3px;font-style:italic;color:var(--faint)}
+.k{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-right:6px}
+.k.you{color:var(--you)}.k.twin{color:var(--twin)}.k.mist{color:var(--muted)}
+.rate{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:center}
+.rate>span{font-size:13px;color:var(--muted);margin-right:4px}
+.rate button{padding:8px 14px;border-radius:999px;border:1px solid var(--line);font-size:13.5px}
+.rate button:hover{border-color:var(--faint)}
+.rate button.yes{border-color:rgba(76,195,201,.45);color:var(--twin)}
+.fix{display:flex;gap:8px;width:min(620px,100%)}
+.fix input{flex:1;background:rgba(255,255,255,.035);border:1px solid var(--line);border-radius:12px;padding:10px 14px;outline:none}
+.fix input:focus{border-color:rgba(242,169,78,.5)}
+.fix button{background:var(--you);color:#1A1206;font-weight:600;padding:10px 16px;border-radius:12px}
+.note{font-size:13px;color:var(--you);min-height:1.2em}
+.again{color:var(--twin);font-size:13px;text-decoration:underline;text-underline-offset:3px}
+
+/* feedback on questions */
+.qfb{display:flex;gap:6px;justify-content:center;margin-top:-6px}
+.qfb button{display:inline-flex;align-items:center;gap:6px;font-size:12.5px;color:var(--faint);padding:5px 11px;border-radius:999px;border:1px solid transparent}
+.qfb button:hover{color:var(--ink);border-color:var(--line)}
+.qfb svg{width:14px;height:14px}
+.reasons{display:flex;gap:6px;flex-wrap:wrap;justify-content:center;align-items:center;font-size:12.5px;color:var(--muted)}
+.reasons button{padding:5px 11px;border-radius:999px;border:1px solid var(--line);color:var(--ink);font-size:12.5px}
+.reasons button:hover{border-color:var(--you)}
+.learned-note{text-align:center;font-size:13px;color:var(--twin);margin:0}
+.learned-note b{font-weight:500;color:var(--ink)}
+
+/* voice */
+.mic{flex:none;width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;color:var(--muted);transition:background .2s,color .2s}
+.mic:hover{color:var(--ink);border-color:var(--faint)}
+.mic svg{width:19px;height:19px}
+.mic.listening{background:var(--you);border-color:var(--you);color:#1A1206;animation:ping 1.4s infinite}
+@keyframes ping{0%{box-shadow:0 0 0 0 rgba(242,169,78,.45)}100%{box-shadow:0 0 0 14px rgba(242,169,78,0)}}
+.menu-row{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 12px;font-size:14px;color:var(--muted)}
+.menu-row select{background:var(--panel);color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:5px 8px;font-size:13px}
+
+/* learning drawer */
+.stats4{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.stats4 div{padding:12px;border:1px solid var(--line);border-radius:12px;display:grid;gap:2px}
+.stats4 b{font:600 22px var(--display);font-variant-numeric:tabular-nums}
+.stats4 span{font-size:12px;color:var(--muted)}
+.lessons{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.lessons li{font-size:13.5px;padding:9px 11px;border-radius:10px;background:rgba(255,255,255,.03);display:flex;justify-content:space-between;gap:10px}
+.hits{font:500 11px var(--mono);color:var(--you);white-space:nowrap}
+.muted-s{font-size:12.5px;color:var(--faint);margin:0 0 10px}
+.spark{width:100%;height:60px;display:block;margin-bottom:10px}
+.case{border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;display:grid;gap:4px;margin-top:8px}
+.case .sc{font:600 11px var(--mono);color:var(--twin)}
+.case .y{color:var(--you)}.case .t{color:var(--twin)}
+
+/* corner drawers */
+.corner{position:fixed;bottom:22px;z-index:4;font-size:12.5px;color:var(--muted);border:1px solid var(--line);background:rgba(11,17,23,.7);padding:8px 14px;border-radius:999px;backdrop-filter:blur(8px)}
+.corner:hover{color:var(--ink)}
+.corner.l{left:24px}.corner.r{right:24px}
+.corner b{color:var(--ink);font:500 12px var(--mono)}
+.scrim{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:8}
+.drawer{position:fixed;top:0;bottom:0;width:min(420px,100vw);background:var(--panel);border:1px solid var(--line);z-index:9;display:flex;flex-direction:column;transition:transform .35s cubic-bezier(.2,.8,.2,1)}
+.drawer.l{left:0;transform:translateX(-102%)}.drawer.r{right:0;transform:translateX(102%)}
+.drawer.open{transform:none}
+.drawer header{display:flex;justify-content:space-between;align-items:center;padding:18px 20px;border-bottom:1px solid var(--line)}
+.drawer h2{margin:0;font:600 17px var(--display)}
+.drawer .body{overflow-y:auto;padding:16px 20px 30px;display:grid;gap:18px;align-content:start}
+.drawer h3{margin:0 0 8px;font:500 10.5px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--muted);display:flex;justify-content:space-between}
+.t-item{font-size:13.5px;line-height:1.5;padding:2px 0}
+.t-item .w{font:500 10px var(--mono);letter-spacing:.08em;text-transform:uppercase;margin-right:6px}
+.t-item.m .w{color:var(--twin)}.t-item.u .w{color:var(--you)}
+.mem-list{list-style:none;margin:0;padding:0;display:grid;gap:6px}
+.mem-list li{font-size:13.5px;padding:8px 10px;border-radius:10px;background:rgba(255,255,255,.025)}
+.mem-list li q{display:block;font-size:12px;font-style:italic;color:var(--faint);margin-top:2px}
+.pv{display:inline-block;margin:0 8px 4px 0;font:500 10px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid var(--line);color:var(--muted)}
+.pv.private{color:#E5826E;border-color:rgba(229,130,110,.45);background:rgba(229,130,110,.08)}
+.pv.public{color:var(--twin);border-color:rgba(76,195,201,.4)}
+.empty{font-size:13px;color:var(--faint);margin:0}
+
+/* overlays */
+.overlay{position:fixed;inset:0;z-index:20;display:grid;place-items:center;padding:24px;background:radial-gradient(900px 600px at 50% 30%,rgba(11,28,34,.9),rgba(5,7,10,.97));backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px)}
+.intro{max-width:560px;text-align:center;display:grid;gap:18px;justify-items:center}
+.intro .mark svg{width:56px;height:56px}
+.intro h2{margin:0;font:600 clamp(34px,5vw,52px)/1.05 var(--display);letter-spacing:-.03em}
+.intro p{margin:0;color:var(--muted);font-size:16px;line-height:1.6}
+.intro form{display:flex;gap:10px;width:min(420px,100%);margin-top:6px}
+.intro input{flex:1;background:rgba(255,255,255,.05);border:1px solid var(--line);border-radius:14px;padding:13px 16px;font-size:16px;outline:none}
+.intro input:focus{border-color:rgba(242,169,78,.6)}
+.intro form button{background:var(--you);color:#1A1206;font-weight:600;padding:13px 20px;border-radius:14px}
+.intro small{color:var(--faint);font-size:12.5px}
+.users{display:grid;gap:8px;width:min(420px,100%)}
+.users:empty{display:none}
+.user{display:flex;gap:8px}
+.user .pick{flex:1;display:flex;justify-content:space-between;align-items:center;gap:10px;text-align:left;padding:13px 16px;border:1px solid var(--line);border-radius:14px;background:rgba(255,255,255,.04);color:var(--ink);font-size:15px}
+.user .pick b{color:var(--ink);font-weight:600}
+.user .pick:hover{border-color:rgba(76,195,201,.5)}
+.user .pick span{font:500 12px var(--mono);color:var(--muted)}
+.user .del{width:46px;border:1px solid var(--line);border-radius:14px;color:var(--faint)}
+.user .del:hover{color:#E5826E;border-color:rgba(229,130,110,.45)}
+.menu .danger{color:#E5826E}
+.portrait{width:min(640px,100%);max-height:90vh;overflow-y:auto;background:linear-gradient(180deg,#0E1E24,var(--panel) 55%);border:1px solid rgba(76,195,201,.3);border-radius:22px;padding:34px 34px 28px;display:grid;gap:16px;box-shadow:0 40px 120px rgba(0,0,0,.6)}
+.portrait .eyebrow{font:500 10.5px var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--twin)}
+.portrait h2{margin:0;font:600 clamp(26px,3.4vw,34px)/1.1 var(--display);letter-spacing:-.02em}
+.portrait ul{margin:0;padding:0;list-style:none;display:grid;gap:10px}
+.portrait li{padding-left:22px;position:relative;font-size:15.5px}
+.portrait li::before{content:"";position:absolute;left:2px;top:.62em;width:8px;height:8px;border-radius:50%;background:var(--you)}
+.portrait .insight{font:400 19px/1.45 var(--display);color:var(--ink);border-top:1px solid var(--line);padding-top:16px;margin:0}
+.portrait .next{color:var(--muted);margin:0}
+.portrait .row{display:flex;gap:10px;justify-content:flex-end;margin-top:6px;flex-wrap:wrap}
+.btn{padding:10px 16px;border-radius:12px;border:1px solid var(--line);color:var(--ink)}
+.btn.main{background:var(--twin);border-color:var(--twin);color:#04191B;font-weight:600}
+
+@media (max-width:1180px){.sparks{right:-6px;top:-6px;width:210px}}
+@media (max-width:900px){
+  body{overflow:auto}
+  .top{flex-wrap:wrap;padding:14px 16px}
+  .modes{position:static;transform:none;order:3;width:100%;justify-content:center}
+  .badge-local{display:none}
+  .stage{padding:0 16px;flex:none;min-height:auto}
+  .sparks{position:static;width:100%;margin-top:6px}
+  .pane{justify-content:flex-start;padding-bottom:16px;overflow:visible}
+  .corner{position:static;margin:0 16px 16px;align-self:flex-start}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="brand"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="16" r="9" fill="none" stroke="#F2A94E" stroke-width="2.4"/><circle cx="20" cy="16" r="9" fill="none" stroke="#4CC3C9" stroke-width="2.4"/></svg>Mirror</div>
+  <nav class="modes" role="tablist" aria-label="Mode">
+    <button role="tab" id="m-teach" aria-selected="true">Teach your twin</button>
+    <button role="tab" id="m-talk" aria-selected="false">Talk to your twin</button>
+  </nav>
+  <div class="right">
+    <span class="badge-local" title="Ollama and SQLite on this Mac"><i></i>on-device · no cloud</span>
+    <button class="icon-btn" id="voice" aria-pressed="false" aria-label="Speak replies aloud" title="Speak replies aloud (on-device voices)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M11 5 6 9H3v6h3l5 4z"/><path d="M15.5 8.5a5 5 0 0 1 0 7"/><path d="M18.5 5.5a9 9 0 0 1 0 13"/></svg>
+    </button>
+    <button class="icon-btn" id="menu-btn" aria-haspopup="true" aria-expanded="false" aria-label="Session menu">
+      <svg viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="1.8"/><circle cx="12" cy="12" r="1.8"/><circle cx="19" cy="12" r="1.8"/></svg>
+    </button>
+  </div>
+  <div class="menu" id="menu" hidden>
+    <button id="do-wrap">Wrap up and see your portrait</button>
+    <button id="do-learning">How Mirror is learning</button>
+    <button id="do-reset">Start a new session</button>
+    <button id="do-logout">Switch user</button>
+    <button id="do-delete" class="danger">Delete this twin</button>
+    <label class="menu-row">Twin's voice
+      <select id="twin-voice">
+        <option value="am_michael">Michael · calm, US</option>
+        <option value="af_bella">Bella · warm, US</option>
+        <option value="bm_george">George · British</option>
+        <option value="bf_emma">Emma · British</option>
+        <option value="hf_alpha">Alpha · Indian</option>
+        <option value="hm_omega">Omega · Indian</option>
+      </select>
+    </label>
+  </div>
+</header>
+
+<main class="stage">
+  <div class="orb-wrap">
+    <canvas id="orb" aria-label="Your twin. Each light is something you've told it; the ring shows which parts of your life it knows."></canvas>
+    <div class="ring-tip" id="ring-tip" hidden></div>
+    <div class="sparks" id="sparks" aria-live="polite"></div>
+  </div>
+  <div class="who">
+    <h1 id="who-title">Your twin <span class="status" id="who-status">is listening</span></h1>
+    <div class="facts">
+      <span><b id="f-count">0</b> memories</span>
+      <span title="How often your twin sounds like you, from your ratings"><b id="f-clarity">–</b> clarity</span>
+      <span><b id="f-lat">–</b> to first words</span>
+    </div>
+    <button class="meet" id="meet" hidden>Your twin is ready to meet you →</button>
+  </div>
+
+  <section class="pane" id="teach" aria-label="Teach your twin">
+    <p class="prev" id="prev" hidden></p>
+    <span class="move" id="move" hidden></span>
+    <p class="lead" id="lead" hidden></p>
+    <h2 class="question" id="question" aria-live="polite"></h2>
+    <div class="qfb" id="qfb" hidden>
+      <button type="button" data-good="1"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 10v11"/><path d="M15 5.9 14 10h5.8a2 2 0 0 1 2 2.3l-1.4 7A2 2 0 0 1 18.4 21H7V10l4.6-7.4A1.8 1.8 0 0 1 15 4.4z"/></svg>Good question</button>
+      <button type="button" data-good="0"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M17 14V3"/><path d="M9 18.1 10 14H4.2a2 2 0 0 1-2-2.3l1.4-7A2 2 0 0 1 5.6 3H17v11l-4.6 7.4A1.8 1.8 0 0 1 9 19.6z"/></svg>Not a good question</button>
+    </div>
+    <div class="reasons" id="reasons" hidden>
+      <span>What was wrong?</span>
+      <button type="button" data-r="Too obvious">Too obvious</button>
+      <button type="button" data-r="I already answered that">Already answered</button>
+      <button type="button" data-r="Too personal, too soon">Too personal</button>
+      <button type="button" data-r="Didn't follow what I actually said">Didn't listen</button>
+      <button type="button" data-r="Confusing question">Confusing</button>
+    </div>
+    <p class="learned-note" id="qfb-note" hidden></p>
+    <span class="thread" id="thread" hidden></span>
+    <form class="composer" id="composer">
+      <button type="button" class="mic" id="mic" aria-label="Answer by voice" title="Answer by voice (Whisper, on this Mac)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+      </button>
+      <textarea id="answer" rows="1" placeholder="Answer like you'd tell a friend…" aria-label="Your answer"></textarea>
+      <button class="send" id="send" aria-label="Send">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+      </button>
+    </form>
+    <div class="below">
+      <div class="chips"><button type="button" data-say="I'd rather skip this one.">Skip this one</button><button type="button" data-say="Can we talk about something lighter?">Something lighter</button></div>
+      <span id="teach-status">Enter to send · Shift+Enter for a new line</span>
+    </div>
+  </section>
+
+  <section class="pane" id="talk" aria-label="Talk to your twin" hidden>
+    <div class="qa" id="qa">
+      <p class="asked" id="asked">Ask your twin anything. It answers the way you would, and tells you when it's guessing.</p>
+      <span class="tag" id="tag" hidden></span>
+      <p class="reply" id="reply"></p>
+      <details class="why" id="why" hidden><summary id="why-sum"></summary><ul id="why-list"></ul></details>
+      <div class="rate" id="rate" hidden>
+        <span>Is this you?</span>
+        <button class="yes" data-score="5">That's me</button>
+        <button data-score="3">Partly</button>
+        <button data-score="1">Not me</button>
+      </div>
+      <form class="fix" id="fix" hidden><input id="fix-text" placeholder="What would you really say?" aria-label="What would you really say?"><button>Teach it</button></form>
+      <div class="note" id="note"></div>
+      <button class="again" id="again" hidden>Ask again and see what changed</button>
+    </div>
+    <form class="ask" id="ask">
+      <input id="ask-text" placeholder="Ask your twin anything…" aria-label="Ask your twin">
+      <button type="button" class="mic" id="mic-ask" aria-label="Ask by voice" title="Ask by voice">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0"/><path d="M12 18v3"/></svg>
+      </button>
+      <button type="button" class="surprise" id="surprise">Surprise me</button>
+      <button class="go">Ask</button>
+    </form>
+  </section>
+</main>
+
+<button class="corner l" id="open-transcript">Conversation</button>
+<button class="corner r" id="open-mind">What your twin knows · <b id="c-count">0</b></button>
+
+<div class="scrim" id="scrim" hidden></div>
+<aside class="drawer l" id="transcript" aria-label="Conversation">
+  <header><h2>Conversation</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
+  <div class="body" id="transcript-body"></div>
+</aside>
+<aside class="drawer r" id="learning" aria-label="How Mirror is learning">
+  <header><h2>How Mirror is learning</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
+  <div class="body" id="learning-body"></div>
+</aside>
+<aside class="drawer r" id="mind" aria-label="What your twin knows">
+  <header><h2>What your twin knows</h2><button class="icon-btn" data-close aria-label="Close">✕</button></header>
+  <div class="body" id="mind-body"></div>
+</aside>
+
+<div class="overlay" id="intro" hidden>
+  <div class="intro">
+    <div class="mark"><svg viewBox="0 0 32 32" aria-hidden="true"><circle cx="12" cy="16" r="9" fill="none" stroke="#F2A94E" stroke-width="2"/><circle cx="20" cy="16" r="9" fill="none" stroke="#4CC3C9" stroke-width="2"/></svg></div>
+    <h2 id="intro-title">Meet the version of you that never sleeps.</h2>
+    <p>I'll ask about your life, how you decide and how you talk. Every answer becomes part of your twin. Then you can talk to it, and correct it until it sounds like you.</p>
+    <div class="users" id="users"></div>
+    <form id="intro-form"><input id="intro-name" placeholder="What should I call you?" autocomplete="off" aria-label="Your name"><button>Create my twin</button></form>
+    <small>Runs entirely on this Mac. Nothing you say leaves it.</small>
+  </div>
+</div>
+
+<div class="overlay" id="portrait-ov" hidden>
+  <article class="portrait" id="portrait"></article>
+</div>
+
+<script>
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"}[c]));
+const fmt = s => esc(s).replace(/\*\*(.+?)\*\*/g, "<b>$1</b>")
+  .replace(/\[(\d+(?:\s*,\s*\d+)*)\]/g, (_, ids) => ids.split(",").map(i => `<sup class="cite">${i.trim()}</sup>`).join(""))
+  .replace(/\n+/g, " ");
+const unq = s => String(s ?? "").trim().replace(/^["“”']+|["“”']+$/g, "");
+const post = (url, body) => fetch(url, {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body || {})});
+const DOTS = '<span class="dots"><i></i><i></i><i></i></span>', CARET = '<span class="caret"></span>';
+const MOVES = {
+  opening: ["Hook", "Opens with a question people want to answer"],
+  follow_up: ["Follow up", "Asks for the story behind what you said"],
+  acknowledge: ["Got it", "Takes the obvious as obvious, then asks for your story"],
+  ladder: ["Ladder · why it matters", "Asks why, to reach the value underneath"],
+  tangent: ["Following your tangent", "You went somewhere interesting, so it followed"],
+  check_in: ["Checking in", "Asks whether you want to keep going or talk about something else"],
+  bridge: ["Bridge back", "Links your tangent back to the earlier thread"],
+  new_chapter: ["New chapter", "Moves to the part of your life it knows least"],
+  mirror: ["Mirror · is that you?", "Guesses your answer in your style, then checks"],
+  ease_off: ["Ease off", "Your answers got shorter, so it lightened up"],
+  pending: ["From your twin", "A question your twin couldn't answer earlier"],
+};
+const TAGS = {knows: "From what you've told me", infers: "My best guess", unknown: "I don't know this yet", private: "Keeping this private"};
+const group = k => ["rule", "trigger", "correction"].includes(k) ? "you" : ["value", "opinion", "preference"].includes(k) ? "twin" : "mist";
+const S = {mode: "teach", panel: null, history: [], twinLog: [], saving: false, queued: null, test: null};
+
+async function stream(url, body, onEvent) {
+  const res = await post(url, body), reader = res.body.getReader(), dec = new TextDecoder();
+  let buf = "";
+  for (;;) {
+    const {value, done} = await reader.read();
+    if (done) break;
+    buf += dec.decode(value, {stream: true});
+    let i;
+    while ((i = buf.indexOf("\n\n")) >= 0) {
+      const line = buf.slice(0, i); buf = buf.slice(i + 2);
+      if (line.startsWith("data: ")) onEvent(JSON.parse(line.slice(6)));
+    }
+  }
+}
+
+/* ---------- the twin: a sphere of light made of your memories ---------- */
+const Orb = (() => {
+  const cv = $("#orb"), ctx = cv.getContext("2d"), tip = $("#ring-tip");
+  const RGB = {you: [242, 169, 78], twin: [76, 195, 201], mist: [178, 196, 208]};
+  const still = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const ps = [], incoming = [];
+  let W = 0, H = 0, R = 0, cx = 0, cy = 0, rot = 0, last = performance.now();
+  let state = "idle", pulse = 0, talk = 0, talkTo = 0, cov = [], hover = -1, base = 0;
+  const P = g => ({u: Math.random() * 2 - 1, th: Math.random() * 6.283, rr: .78 + Math.random() * .36, s: (g === "mist" ? .55 : .9) + Math.random() * 1.3, g, ph: Math.random() * 6.283});
+  function resize() {
+    const r = cv.getBoundingClientRect(), d = Math.min(devicePixelRatio || 1, 2);
+    W = r.width; H = r.height; cv.width = W * d; cv.height = H * d; ctx.setTransform(d, 0, 0, d, 0, 0);
+    R = Math.min(W, H) * .3; cx = W / 2; cy = H / 2;
+  }
+  function project(p, t) {
+    const a = p.th + rot, sq = Math.sqrt(1 - p.u * p.u), x = sq * Math.cos(a), y = p.u, z = sq * Math.sin(a), tl = .4;
+    const y2 = y * Math.cos(tl) - z * Math.sin(tl), z2 = y * Math.sin(tl) + z * Math.cos(tl);
+    const k = 2.4 / (2.4 - z2), rad = R * p.rr * (1 + .025 * Math.sin(t * 1.1 + p.ph) + .07 * pulse) * k;
+    return {x: cx + x * rad, y: cy + y2 * rad, z: z2, k};
+  }
+  function rgba(g, a) {
+    let c = RGB[g];
+    if (g === "mist") c = c.map((v, i) => v + (RGB.twin[i] - v) * talk * .75);
+    return `rgba(${c[0] | 0},${c[1] | 0},${c[2] | 0},${a})`;
+  }
+  function frame(now) {
+    const dt = Math.min((now - last) / 1000, .05), t = now / 1000; last = now;
+    const speed = still ? 0 : state === "thinking" ? 1.1 : state === "speaking" ? .38 : state === "listening" ? .22 : .13;
+    rot += dt * speed; pulse *= Math.pow(.03, dt); talk += (talkTo - talk) * Math.min(dt * 3, 1);
+    ctx.clearRect(0, 0, W, H);
+    const g = ctx.createRadialGradient(cx, cy, 0, cx, cy, R * 1.8);
+    g.addColorStop(0, rgba(state === "listening" ? "you" : "twin", .17 + .12 * pulse + (state === "thinking" ? .06 : 0)));
+    g.addColorStop(.5, rgba("you", .045 + .03 * (1 - talk)));
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g; ctx.fillRect(0, 0, W, H);
+    const n = cov.length, rr = R * 1.45, gap = .07;
+    ctx.lineCap = "round";
+    for (let i = 0; i < n; i++) {
+      const a0 = -Math.PI / 2 + i * 6.283 / n + gap / 2, a1 = a0 + 6.283 / n - gap, f = Math.min(cov[i].n, 5) / 5;
+      ctx.lineWidth = hover === i ? 5 : 3;
+      ctx.strokeStyle = "rgba(255,255,255,.1)"; ctx.beginPath(); ctx.arc(cx, cy, rr, a0, a1); ctx.stroke();
+      if (f) { ctx.strokeStyle = rgba("twin", .5 + .45 * f); ctx.beginPath(); ctx.arc(cx, cy, rr, a0, a0 + (a1 - a0) * f); ctx.stroke(); }
+    }
+    const pts = ps.map(p => [p, project(p, t)]).sort((a, b) => a[1].z - b[1].z);
+    for (const [p, q] of pts) {
+      ctx.fillStyle = rgba(p.g, (p.g === "mist" ? .14 : .35) + .65 * ((q.z + 1) / 2));
+      ctx.beginPath(); ctx.arc(q.x, q.y, p.s * q.k * .9, 0, 6.283); ctx.fill();
+    }
+    for (let i = incoming.length - 1; i >= 0; i--) {
+      const f = incoming[i], k = still ? 1 : (now - f.t0) / 1400;
+      if (k < 0) continue;
+      const q = project(f.p, t), e = 1 - Math.pow(1 - Math.min(k, 1), 3);
+      const x = f.x0 + (q.x - f.x0) * e, y = f.y0 + (q.y - f.y0) * e;
+      ctx.fillStyle = rgba(f.p.g, .95); ctx.beginPath(); ctx.arc(x, y, 2.1 - e, 0, 6.283); ctx.fill();
+      if (k >= 1) { ps.push(f.p); incoming.splice(i, 1); }
+    }
+    requestAnimationFrame(frame);
+  }
+  cv.addEventListener("mousemove", e => {
+    const r = cv.getBoundingClientRect(), x = e.clientX - r.left - cx, y = e.clientY - r.top - cy, d = Math.hypot(x, y);
+    hover = -1;
+    if (cov.length && Math.abs(d - R * 1.45) < 14) {
+      hover = Math.floor(((Math.atan2(y, x) + Math.PI / 2 + 6.283) % 6.283) / (6.283 / cov.length));
+      tip.textContent = `${cov[hover].a} · ${cov[hover].n}`; tip.style.left = (e.clientX - r.left) + "px"; tip.style.top = (e.clientY - r.top) + "px";
+    }
+    tip.hidden = hover < 0;
+  });
+  cv.addEventListener("mouseleave", () => { hover = -1; tip.hidden = true; });
+  addEventListener("resize", resize);
+  resize(); requestAnimationFrame(frame);
+  return {
+    state: s => { state = s; },
+    pulse: () => { pulse = Math.min(pulse + .45, 1); },
+    level: x => { pulse = Math.max(pulse, x); },
+    mode: m => { talkTo = m === "talk" ? 1 : 0; },
+    coverage: c => { cov = Object.entries(c).map(([a, n]) => ({a, n})); },
+    reset: () => { ps.length = 0; incoming.length = 0; base = 0; },  /* a different person: start a new twin */
+    memories: list => {  /* 150 lights of potential, plus 9 for every memory */
+      if (!base) { for (let i = 0; i < 260; i++) ps.push(P("mist")); base = 260; }
+      const want = Math.min(base + list.length * 12, 1200);
+      for (let i = ps.length + incoming.length; i < want; i++) ps.push(P(group(list[Math.floor((i - base) / 12)]?.kind)));
+    },
+    learn: items => {  /* new memories fly in from where you typed */
+      const now = performance.now();
+      items.forEach((m, i) => { for (let j = 0; j < 12; j++) incoming.push({p: P(group(m.kind)), t0: now + i * 260 + j * 40, x0: cx + (Math.random() - .5) * W * .6, y0: H + 30}); });
+    },
+  };
+})();
+
+/* ---------- voice: Kokoro speaks, Whisper listens, both on this Mac ---------- */
+const Voice = {
+  on: false, gen: 0, audio: new Audio(), twin: "am_michael", beat: null,
+  init() {
+    try { this.on = localStorage.getItem("mirror-voice") === "1"; this.twin = localStorage.getItem("mirror-twin-voice") || this.twin; } catch (e) {}
+    $("#voice").setAttribute("aria-pressed", this.on); $("#twin-voice").value = this.twin;
+  },
+  set(on) {
+    this.on = on; $("#voice").setAttribute("aria-pressed", on);
+    try { localStorage.setItem("mirror-voice", on ? "1" : "0"); } catch (e) {}
+    if (!on) this.stop();
+  },
+  stop() { this.gen++; this.audio.pause(); clearInterval(this.beat); if ("speechSynthesis" in window) speechSynthesis.cancel(); Orb.state("idle"); },
+  async say(text, who) {  /* resolves when it has finished speaking */
+    if (!this.on || !text) return;
+    this.stop(); const gen = this.gen;
+    const parts = (text.replace(/\[\d+\]/g, "").replace(/\*\*/g, "").match(/[^.!?]+[.!?]*/g) || []).map(s => s.trim()).filter(Boolean);
+    const get = s => fetch(`/api/tts?who=${who}&v=${who === "twin" ? this.twin : ""}&text=${encodeURIComponent(s)}`)
+      .then(r => r.ok ? r.blob() : Promise.reject(r.status));
+    try {
+      let next = get(parts[0]);
+      for (let i = 0; i < parts.length; i++) {  /* sentence by sentence, fetching the next while this one plays */
+        const blob = await next;
+        if (gen !== this.gen) return;
+        if (i + 1 < parts.length) next = get(parts[i + 1]);
+        await this.play(blob);
+      }
+    } catch (e) { if (gen === this.gen) await this.fallback(text); }
+    if (gen === this.gen) { clearInterval(this.beat); Orb.state("idle"); }
+  },
+  play(blob) {
+    return new Promise(res => {
+      const url = URL.createObjectURL(blob), a = this.audio, done = () => { URL.revokeObjectURL(url); res(); };
+      a.src = url; a.onended = done; a.onerror = done;
+      Orb.state("speaking"); clearInterval(this.beat); this.beat = setInterval(() => Orb.level(.25 + Math.random() * .45), 120);
+      a.play().catch(done);
+    });
+  },
+  fallback(text) {  /* the browser's built-in voice, if local speech isn't available */
+    return new Promise(res => {
+      if (!("speechSynthesis" in window)) return res();
+      const u = new SpeechSynthesisUtterance(text.replace(/\[\d+\]/g, "")); u.onend = u.onerror = res; speechSynthesis.speak(u);
+    });
+  },
+};
+const Mic = {
+  on: false,
+  async start(target) {
+    Voice.stop();
+    try { this.stream = await navigator.mediaDevices.getUserMedia({audio: {channelCount: 1, echoCancellation: true, noiseSuppression: true, autoGainControl: true}}); }
+    catch (e) { voiceStatus(target, "Mirror needs microphone access. Allow it in the address bar, then tap the mic again."); return; }
+    let ctx, src;
+    try { ctx = new AudioContext({sampleRate: 16000}); src = ctx.createMediaStreamSource(this.stream); }
+    catch (e) { ctx?.close(); ctx = new AudioContext(); src = ctx.createMediaStreamSource(this.stream); }  /* resampled below */
+    this.ctx = ctx;
+    const proc = ctx.createScriptProcessor(4096, 1, 1);
+    this.chunks = []; this.nodes = [src, proc]; this.target = target; this.on = true;
+    let spoke = false, quiet = 0;
+    const t0 = performance.now();
+    proc.onaudioprocess = e => {
+      const d = e.inputBuffer.getChannelData(0);
+      this.chunks.push(new Float32Array(d));
+      let s = 0; for (let i = 0; i < d.length; i++) s += d[i] * d[i];
+      const rms = Math.sqrt(s / d.length);
+      Orb.level(Math.min(rms * 6, 1));
+      if (rms > 0.015) { spoke = true; quiet = 0; } else if (spoke) quiet += d.length / ctx.sampleRate;
+      if ((spoke && quiet > 10) || performance.now() - t0 > 120000) this.stop();  /* or tap the mic to finish sooner */
+    };
+    src.connect(proc); proc.connect(ctx.destination);
+    listening(true);
+  },
+  async stop(cancel) {
+    if (!this.on) return;
+    this.on = false; listening(false);
+    this.nodes.forEach(n => n.disconnect()); this.stream.getTracks().forEach(t => t.stop());
+    const rate = this.ctx.sampleRate; this.ctx.close();
+    if (cancel) return;
+    let pcm = new Float32Array(this.chunks.reduce((n, c) => n + c.length, 0)), o = 0;
+    this.chunks.forEach(c => { pcm.set(c, o); o += c.length; });
+    if (rate !== 16000) pcm = Float32Array.from({length: Math.floor(pcm.length * 16000 / rate)}, (_, i) => pcm[Math.floor(i * rate / 16000)]);
+    const i16 = Int16Array.from(pcm, v => Math.max(-1, Math.min(1, v)) * 32767);
+    voiceStatus(this.target, "Turning what you said into text…");
+    const r = await fetch("/api/stt", {method: "POST", headers: {"Content-Type": "application/octet-stream"}, body: i16.buffer})
+      .then(r => r.json()).catch(() => ({text: ""}));
+    const text = (r.text || "").trim();
+    if (!text) { voiceStatus(this.target, "I didn't catch that. Tap the mic and try again."); S.handsFree = false; return; }
+    Voice.set(true);
+    if (this.target === "teach") { S.handsFree = true; $("#answer").value = text; $("#composer").requestSubmit(); }
+    else askTwin(text, false);
+  },
+};
+function listening(on) {
+  $(Mic.target === "talk" ? "#mic-ask" : "#mic").classList.toggle("listening", on);
+  Orb.state(on ? "listening" : "idle");
+  if (on) voiceStatus(Mic.target, "Listening… tap the mic when you're done");
+}
+function voiceStatus(target, text) {
+  if (target === "talk") $("#asked").innerHTML = `<span>Mirror</span>${esc(text)}`;
+  else $("#teach-status").textContent = text;
+}
+
+/* ---------- shared panel ---------- */
+const owner = () => (S.panel && S.panel.name) || "";
+function identity() {
+  const n = owner(), twin = n ? `${n}'s twin` : "Your twin";
+  $("#who-title").innerHTML = S.mode === "talk" ? `You're talking to ${esc(twin)}` : `${esc(twin)} <span class="status" id="who-status">${S.saving ? "is learning…" : "is listening"}</span>`;
+  $("#ask-text").placeholder = `Ask ${n ? n + "'s" : "your"} twin anything…`;
+}
+function setLatency(s) { if (s != null) $("#f-lat").textContent = s.toFixed(1) + " s"; }
+function render(p) {
+  S.panel = p;
+  $("#f-count").textContent = p.count; $("#c-count").textContent = p.count;
+  $("#f-clarity").textContent = p.fidelity == null ? "–" : p.fidelity + "%";
+  $("#meet").hidden = !(S.mode === "teach" && p.count >= 6);
+  $("#thread").hidden = !p.thread || S.mode !== "teach";
+  $("#thread").innerHTML = p.thread ? `Thread to come back to: <b>${esc(p.thread)}</b>` : "";
+  Orb.coverage(p.coverage); Orb.memories(p.memories); identity(); renderMind();
+  const e = p.engine || {local: true, label: "on-device"};  /* say honestly where replies come from */
+  $(".badge-local").innerHTML = `<i></i>${esc(e.label)}${e.local ? " · no cloud" : " · memory stays on this Mac"}`;
+  $("#intro small").textContent = e.local ? "Runs entirely on this Mac. Nothing you say leaves it."
+    : `Your memories stay on this Mac. Replies come from ${e.label}'s free tier, which may use conversations to improve its models.`;
+}
+function sparks(items) {
+  items.slice(0, 4).forEach((m, i) => setTimeout(() => {
+    const el = document.createElement("div");
+    el.className = "spark " + group(m.kind);
+    el.innerHTML = `<b>learned · ${esc(m.kind)}</b>${esc(m.text)}`;
+    $("#sparks").appendChild(el); setTimeout(() => el.remove(), 4300);
+  }, i * 450));
+}
+
+/* ---------- teach ---------- */
+function splitQA(text) {  /* reflection in small type, the question large */
+  const i = Math.max(text.lastIndexOf(". "), text.lastIndexOf("; "), text.lastIndexOf("! "), text.lastIndexOf("—"), text.lastIndexOf("\n"));
+  if (i < 0) return ["", text];
+  const q = text.slice(i + 1).trim();
+  if (!q) return ["", text];
+  return [text.slice(0, i + 1).trim().replace(/[;—]$/, "."), q.charAt(0).toUpperCase() + q.slice(1)];
+}
+function showQuestion(m, live) {
+  const [lead, q] = splitQA(m.content || "");
+  $("#lead").hidden = !lead; $("#lead").innerHTML = fmt(lead);
+  $("#question").innerHTML = fmt(q) + (live ? CARET : "");
+  const mv = MOVES[m.move];
+  $("#move").hidden = !mv; if (mv) { $("#move").textContent = mv[0]; $("#move").title = mv[1]; }
+  $("#qfb").hidden = live || !q; $("#reasons").hidden = true; $("#qfb-note").hidden = true;  /* rate each finished question */
+}
+function current() { return [...S.history].reverse().find(m => m.role === "assistant" && m.move !== "wrap" && m.content); }
+function lastAnswer() { return [...S.history].reverse().find(m => m.role === "user"); }
+function showPrev(text) { $("#prev").hidden = !text; $("#prev").innerHTML = text ? `<span>You said</span>${esc(text)}` : ""; }
+async function sendAnswer(text) {
+  S.saving = true; $("#send").disabled = true; identity();
+  showPrev(text); S.history.push({role: "user", content: text}); renderTranscript();
+  $("#lead").hidden = true; $("#move").hidden = true; $("#question").innerHTML = DOTS;
+  $("#qfb").hidden = true; $("#reasons").hidden = true; $("#qfb-note").hidden = true;
+  Orb.state("thinking");
+  try {
+    await stream("/api/interview", {text}, ev => {
+      if (ev.type === "token" && ev.text) { Orb.state("speaking"); Orb.pulse(); showQuestion({content: ev.text}, true); }
+      if (ev.type === "reply") {
+        const m = {role: "assistant", content: ev.text, move: ev.move, first: ev.first};
+        S.history.push(m); showQuestion(m, false); setLatency(ev.first); renderTranscript();
+        Orb.state("idle");
+        Voice.say(ev.text, "mirror").then(() => {  /* hands-free: if you spoke, it listens again after replying */
+          if (S.handsFree && S.mode === "teach" && !Mic.on) Mic.start("teach");
+        });
+        $("#send").disabled = false; $("#teach-status").innerHTML = '<span class="learning">Your twin is learning from that…</span>';
+      }
+      if (ev.type === "error") { $("#question").textContent = ev.text; $("#teach-status").textContent = ""; }
+      if (ev.type === "saved") {
+        sparks(ev.items); Orb.learn(ev.items); S.saving = false; render(ev.panel);
+        $("#teach-status").textContent = ev.items.length ? `Learned ${ev.items.length} new thing${ev.items.length > 1 ? "s" : ""}` : "Enter to send · Shift+Enter for a new line";
+      }
+    });
+  } catch (e) { $("#question").textContent = "I lost my connection to the local model. Is Ollama running?"; }
+  S.saving = false; $("#send").disabled = false; Orb.state("idle"); identity();
+  if (S.queued) { const q = S.queued; S.queued = null; sendAnswer(q); }
+}
+$("#composer").addEventListener("submit", e => {
+  e.preventDefault();
+  const t = $("#answer").value.trim();
+  if (!t) return;
+  $("#answer").value = ""; grow();
+  if (S.saving) { S.queued = t; $("#teach-status").textContent = "Got it. Sending as soon as your twin finishes learning…"; return; }
+  sendAnswer(t);
+});
+const grow = () => { const t = $("#answer"); t.style.height = "auto"; t.style.height = Math.min(t.scrollHeight, 180) + "px"; };
+$("#answer").addEventListener("input", () => { grow(); S.handsFree = false; });
+$("#mic").addEventListener("click", () => Mic.on ? Mic.stop() : Mic.start("teach"));
+$("#mic-ask").addEventListener("click", () => Mic.on ? Mic.stop() : Mic.start("talk"));
+
+/* rating a question teaches the interviewer */
+document.querySelectorAll("#qfb button").forEach(b => b.addEventListener("click", () => {
+  if (b.dataset.good === "1") return questionFeedback(true, "");
+  $("#qfb").hidden = true; $("#reasons").hidden = false;
+}));
+document.querySelectorAll("#reasons button").forEach(b => b.addEventListener("click", () => questionFeedback(false, b.dataset.r)));
+async function questionFeedback(good, reason) {
+  const q = current(), before = S.history.slice(0, S.history.lastIndexOf(q)).reverse().find(m => m.role === "user");
+  $("#qfb").hidden = true; $("#reasons").hidden = true; $("#qfb-note").hidden = false;
+  $("#qfb-note").textContent = good ? "Thanks. Mirror will ask more questions like this." : "Learning from that…";
+  const r = await post("/api/feedback", {question: q.content, context: before?.content || "", good, reason}).then(r => r.json()).catch(() => ({}));
+  if (!good) $("#qfb-note").innerHTML = r.lesson ? `Mirror learned a new rule: <b>${esc(r.lesson)}</b>` : "Noted.";
+}
+$("#answer").addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); $("#composer").requestSubmit(); } });
+document.querySelectorAll("[data-say]").forEach(b => b.addEventListener("click", () => { $("#answer").value = b.dataset.say; $("#composer").requestSubmit(); }));
+
+/* ---------- talk ---------- */
+function setTag(kind) { $("#tag").hidden = !kind; if (kind) { $("#tag").className = "tag " + kind; $("#tag").textContent = TAGS[kind] || ""; } }
+async function askTwin(question, surprise) {
+  S.test = {question, answer: "", cited: []};
+  $("#asked").innerHTML = `<span>${surprise ? "Mirror asks your twin" : "You asked"}</span>${esc(question)}`;
+  setTag(null); $("#reply").innerHTML = DOTS; $("#why").hidden = true; $("#rate").hidden = true; $("#fix").hidden = true; $("#again").hidden = true; $("#note").textContent = "";
+  Orb.state("thinking");
+  await stream("/api/twin", {text: question}, ev => {
+    if (ev.type === "error") { $("#reply").textContent = ev.text; Orb.state("idle"); }
+    if (ev.type === "token") { if (ev.kind) setTag(ev.kind); if (ev.text) { Orb.state("speaking"); Orb.pulse(); $("#reply").innerHTML = fmt(ev.text) + CARET; } }
+    if (ev.type === "done") {
+      S.test.answer = ev.text; setTag(ev.kind); $("#reply").innerHTML = fmt(ev.text); setLatency(ev.first);
+      const src = ev.sources || [];
+      S.test.cited = src.map(s => s.id);
+      $("#why").hidden = !src.length; $("#why").open = false;
+      $("#why-sum").textContent = `Why I said this · ${src.length} memor${src.length === 1 ? "y" : "ies"}`;
+      $("#why-list").innerHTML = src.map(s => `<li><span class="k ${group(s.kind)}">${esc(s.kind)}</span>${esc(s.text)}${s.quote && s.kind !== "quote" ? `<q>You said: ${esc(unq(s.quote))}</q>` : ""}</li>`).join("");
+      $("#rate").hidden = false;
+      if (ev.queued) $("#note").textContent = `Added to what Mirror will ask ${owner() || "you"} next.`;
+      S.twinLog.push({q: question, a: ev.text, kind: ev.kind}); renderTranscript();
+      render(ev.panel); Orb.state("idle"); Voice.say(ev.text, "twin");
+    }
+  });
+}
+$("#ask").addEventListener("submit", e => { e.preventDefault(); const q = $("#ask-text").value.trim(); if (q) { $("#ask-text").value = ""; askTwin(q, false); } });
+$("#surprise").addEventListener("click", async () => {
+  $("#surprise").disabled = true; Orb.state("thinking");
+  $("#asked").innerHTML = "<span>Mirror</span>is thinking of something you haven't told it yet…"; setTag(null); $("#reply").innerHTML = DOTS;
+  $("#why").hidden = true; $("#rate").hidden = true; $("#fix").hidden = true; $("#again").hidden = true; $("#note").textContent = "";
+  const r = await post("/api/test-question").then(r => r.json());
+  $("#surprise").disabled = false; askTwin(r.question, true);
+});
+async function rate(score, fix) {
+  $("#rate").hidden = true; $("#fix").hidden = true; $("#note").textContent = "Learning from that…";
+  const r = await post("/api/rate", {question: S.test.question, answer: S.test.answer, score, fix, cited: S.test.cited}).then(r => r.json());
+  render(r.panel);
+  const n = S.test.cited.length, mems = n ? ` ${n} memor${n === 1 ? "y" : "ies"} behind it ${score === 5 ? "got stronger" : "got weaker"}.` : "";
+  $("#note").innerHTML = r.lesson ? `Your twin learned: <b>${esc(r.lesson)}</b>${esc(mems)}`
+    : score === 5 ? `Your twin just got a little clearer.${esc(mems)}` : `Noted.${esc(mems)}${score === 1 ? " Mirror will ask you about this." : ""}`;
+  $("#again").hidden = !fix;
+}
+
+/* ---------- how Mirror is learning ---------- */
+function sparkline(runs) {
+  if (!runs.length) return "";
+  const W = 360, H = 56, xs = i => runs.length === 1 ? W / 2 : 8 + i * (W - 16) / (runs.length - 1), ys = v => H - 6 - v / 100 * (H - 14);
+  const pts = runs.map((r, i) => `${xs(i).toFixed(1)},${ys(r.score).toFixed(1)}`).join(" "), last = runs[runs.length - 1];
+  return `<svg class="spark" viewBox="0 0 ${W} ${H}" role="img" aria-label="Check scores over time, latest ${last.score}%">
+    <line x1="0" y1="${ys(50)}" x2="${W}" y2="${ys(50)}" stroke="rgba(255,255,255,.08)"/>
+    <polyline points="${pts}" fill="none" stroke="#4CC3C9" stroke-width="2" stroke-linejoin="round"/>
+    <circle cx="${xs(runs.length - 1)}" cy="${ys(last.score)}" r="4" fill="#4CC3C9"/>
+    <text x="${Math.min(xs(runs.length - 1) + 8, W - 40)}" y="${ys(last.score) - 6}" fill="#EAF0F3" font-size="12" font-family="IBM Plex Mono, monospace">${last.score}%</text></svg>`;
+}
+function renderLearning(L, results) {
+  const s = L.stats;
+  const list = (rows, empty) => rows.length ? `<ul class="lessons">${rows.map(r => `<li><span>${esc(r.text)}</span>${r.hits > 1 ? `<span class="hits">×${r.hits}</span>` : ""}</li>`).join("")}</ul>` : `<p class="empty">${empty}</p>`;
+  const cases = (results || []).map(c => `<div class="case"><span class="sc">${c.score ? c.score + "/5" : "–"}</span><b>${esc(c.question)}</b>
+    <span><span class="y">You:</span> ${esc(c.expected)}</span><span><span class="t">Twin:</span> ${esc(c.answer)}</span></div>`).join("");
+  $("#learning-body").innerHTML = `
+    <div class="stats4">
+      <div><b>${s.questions_liked}</b><span>questions you liked</span></div>
+      <div><b>${s.questions_disliked}</b><span>questions you disliked</span></div>
+      <div><b>${s.answers_confirmed}</b><span>twin answers confirmed or fixed</span></div>
+      <div><b>${s.doubtful}</b><span>memories now doubted</span></div>
+    </div>
+    <div><h3>Rules the interviewer learned from you</h3>${list(L.interviewer, "Tap “Not a good question” under any question and Mirror turns it into a rule.")}</div>
+    <div><h3>What your twin learned about you</h3>${list(L.twin, "Correct a twin answer and it learns how you really think.")}</div>
+    <div><h3><span>Twin check</span><span>${L.cases} test case${L.cases === 1 ? "" : "s"}</span></h3>
+      <p class="muted-s">Every answer you confirm or correct becomes a test. The check replays them without showing your twin that answer, and a judge scores how close it gets.</p>
+      ${sparkline(L.checks)}
+      <button class="btn main" id="run-check" ${L.cases ? "" : "disabled"}>Run check</button>
+      <div>${cases}</div>
+    </div>`;
+  $("#run-check")?.addEventListener("click", async () => {
+    $("#run-check").disabled = true; $("#run-check").textContent = `Checking ${L.cases} case${L.cases === 1 ? "" : "s"}…`;
+    const r = await post("/api/check").then(r => r.json()).catch(() => null);
+    if (r) renderLearning(r.learning, r.results);
+  });
+}
+async function openLearning() {
+  $("#menu").hidden = true; openDrawer("#learning");
+  $("#learning-body").innerHTML = '<p class="empty">Loading…</p>';
+  renderLearning(await fetch("/api/learning").then(r => r.json()));
+}
+document.querySelectorAll("#rate button").forEach(b => b.addEventListener("click", () => {
+  const score = +b.dataset.score;
+  if (score === 5) return rate(5, "");
+  S.test.score = score; $("#fix").hidden = false; $("#fix-text").focus();
+}));
+$("#fix").addEventListener("submit", e => { e.preventDefault(); rate(S.test.score || 1, $("#fix-text").value.trim()); $("#fix-text").value = ""; });
+$("#again").addEventListener("click", () => S.test && askTwin(S.test.question, false));
+
+/* ---------- modes, menu, drawers, overlays ---------- */
+function setMode(m) {
+  S.mode = m; $("#teach").hidden = m !== "teach"; $("#talk").hidden = m !== "talk"; document.body.classList.toggle("talk", m === "talk");
+  $("#m-teach").setAttribute("aria-selected", m === "teach"); $("#m-talk").setAttribute("aria-selected", m === "talk");
+  Orb.mode(m); if (S.panel) render(S.panel);
+  (m === "teach" ? $("#answer") : $("#ask-text")).focus();
+}
+$("#m-teach").addEventListener("click", () => setMode("teach"));
+$("#m-talk").addEventListener("click", () => setMode("talk"));
+$("#meet").addEventListener("click", () => setMode("talk"));
+$("#voice").addEventListener("click", () => Voice.set(!Voice.on));
+$("#do-learning").addEventListener("click", openLearning);
+$("#twin-voice").addEventListener("change", e => { Voice.twin = e.target.value; try { localStorage.setItem("mirror-twin-voice", Voice.twin); } catch (x) {} });
+$("#menu-btn").addEventListener("click", () => { const m = $("#menu"); m.hidden = !m.hidden; $("#menu-btn").setAttribute("aria-expanded", !m.hidden); });
+document.addEventListener("click", e => { if (!e.target.closest("#menu, #menu-btn")) $("#menu").hidden = true; });
+
+function openDrawer(id) { $("#scrim").hidden = false; $(id).classList.add("open"); }
+function closeDrawers() { $("#scrim").hidden = true; document.querySelectorAll(".drawer").forEach(d => d.classList.remove("open")); }
+$("#open-transcript").addEventListener("click", () => openDrawer("#transcript"));
+$("#open-mind").addEventListener("click", () => openDrawer("#mind"));
+$("#scrim").addEventListener("click", closeDrawers);
+document.querySelectorAll("[data-close]").forEach(b => b.addEventListener("click", closeDrawers));
+document.addEventListener("keydown", e => {
+  if (e.key !== "Escape") return;
+  closeDrawers(); $("#menu").hidden = true; $("#portrait-ov").hidden = true;
+  S.handsFree = false; Mic.stop(true); Voice.stop();  /* Esc also ends a hands-free voice conversation */
+});
+
+function renderTranscript() {
+  const conv = S.history.filter(m => m.move !== "wrap").map(m => m.role === "user"
+    ? `<div class="t-item u"><span class="w">You</span>${esc(m.content)}</div>`
+    : `<div class="t-item m"><span class="w">Mirror${m.move && MOVES[m.move] ? " · " + esc(MOVES[m.move][0]) : ""}</span>${fmt(m.content)}</div>`).join("");
+  const talk = S.twinLog.map(x => `<div class="t-item u"><span class="w">You asked</span>${esc(x.q)}</div><div class="t-item m"><span class="w">Twin · ${esc(TAGS[x.kind] || "")}</span>${fmt(x.a)}</div>`).join("");
+  $("#transcript-body").innerHTML = `<div><h3>Interview</h3>${conv || '<p class="empty">Nothing yet.</p>'}</div>` + (talk ? `<div><h3>Talking to your twin</h3>${talk}</div>` : "");
+}
+function renderMind() {
+  const p = S.panel, by = {};
+  p.memories.forEach(m => (by[m.area] = by[m.area] || []).push(m));
+  const lvl = m => m.privacy || "private";
+  const areas = Object.keys(p.coverage).map(a => by[a] ? `<div><h3><span>${esc(a)}</span><span>${by[a].length}</span></h3><ul class="mem-list">${by[a].map(m =>
+    `<li><button class="pv ${lvl(m)}" data-id="${m.id}" data-level="${lvl(m)}" title="Tap to change who your twin can share this with">${PRIV[lvl(m)]}</button>`
+    + `<span class="k ${group(m.kind)}">${esc(m.kind)}</span>${esc(m.text)}${m.quote && unq(m.quote) !== unq(m.text) ? `<q>${esc(unq(m.quote))}</q>` : ""}</li>`).join("")}</ul></div>` : "").join("");
+  const fixes = p.memories.filter(m => m.kind === "correction");
+  const corr = fixes.length ? `<div><h3><span>Your corrections</span><span>${fixes.length}</span></h3><ul class="mem-list">${fixes.map(m => `<li><span class="k you">correction</span>${esc(m.quote || m.text)}</li>`).join("")}</ul></div>` : "";
+  const qs = p.questions.length ? `<div><h3>Questions it couldn't answer</h3><ul class="mem-list">${p.questions.map(q => `<li>${esc(q)}</li>`).join("")}</ul></div>` : "";
+  const legend = `<p class="muted-s">Your twin never shares <b>private</b> memories with anyone, keeps <b>personal</b> ones general, and talks freely about <b>public</b> ones. Tap a label to change it.</p>`;
+  $("#mind-body").innerHTML = legend + (areas || '<p class="empty">Answer a few questions and your twin will start remembering.</p>') + corr + qs;
+  document.querySelectorAll("#mind-body .pv").forEach(b => b.addEventListener("click", async () => {
+    const next = {private: "personal", personal: "public", public: "private"}[b.dataset.level];
+    const r = await post("/api/privacy", {id: +b.dataset.id, level: next}).then(r => r.json());
+    render(r.panel);
+  }));
+}
+const PRIV = {private: "private · never shared", personal: "personal · kept general", public: "public"};
+
+async function wrapUp() {
+  $("#menu").hidden = true; $("#portrait-ov").hidden = false;
+  $("#portrait").innerHTML = `<span class="eyebrow">Session portrait</span><h2>Writing what I learned about you</h2><p>${DOTS}</p>`;
+  Orb.state("thinking");
+  const r = await post("/api/wrap").then(r => r.json()).catch(() => ({error: "I couldn't reach the local model."}));
+  Orb.state("idle");
+  if (r.error) { $("#portrait").innerHTML = `<span class="eyebrow">Session portrait</span><h2>${esc(r.error)}</h2><div class="row"><button class="btn" data-x>Close</button></div>`; }
+  else {
+    render(r.panel);
+    $("#portrait").innerHTML = `<span class="eyebrow">Session portrait</span><h2>${esc(owner() || "You")}, as your twin sees you</h2>
+      <ul>${r.wrap.learned.map(x => `<li>${esc(x)}</li>`).join("")}</ul>
+      <p class="insight">${esc(r.wrap.insight)}</p><p class="next">${esc(r.wrap.next_time)}</p>
+      <div class="row"><button class="btn" data-x>Keep teaching</button><button class="btn main" data-talk>Talk to your twin</button></div>`;
+    Voice.say(r.wrap.insight, "mirror");
+  }
+  $("#portrait").querySelector("[data-x]")?.addEventListener("click", () => { $("#portrait-ov").hidden = true; });
+  $("#portrait").querySelector("[data-talk]")?.addEventListener("click", () => { $("#portrait-ov").hidden = true; setMode("talk"); });
+}
+$("#do-wrap").addEventListener("click", wrapUp);
+$("#do-reset").addEventListener("click", async () => {
+  $("#menu").hidden = true; if (S.saving) return;
+  const r = await post("/api/reset").then(r => r.json());
+  S.history = r.history; render(r.panel); showPrev(""); showQuestion(current(), false); renderTranscript(); setMode("teach");
+});
+
+/* ---------- people: sign in, switch, delete ---------- */
+function enter(r) {  /* show whoever is signed in, or the welcome screen */
+  if (!r.user) return showLogin(r.users || []);
+  $("#intro").hidden = true; Voice.stop(); Orb.reset();
+  S.history = r.history; S.twinLog = []; S.test = null; render(r.panel);
+  showPrev(lastAnswer()?.content || ""); showQuestion(current(), false); renderTranscript(); setMode("teach");
+  $("#asked").textContent = "Ask your twin anything. It answers the way you would, and tells you when it's guessing.";
+  ["#tag", "#why", "#rate", "#fix", "#again"].forEach(s => $(s).hidden = true); $("#reply").innerHTML = ""; $("#note").textContent = "";
+}
+function showLogin(list) {
+  $("#intro").hidden = false; $("#intro-name").value = "";
+  $("#intro-title").textContent = list.length ? "Welcome back. Who's here?" : "Meet the version of you that never sleeps.";
+  $("#users").innerHTML = list.map(u => `<div class="user"><button type="button" class="pick" data-name="${esc(u.name)}" aria-label="Continue as ${esc(u.name)}"><b>${esc(u.name)}</b>`
+    + `<span>${u.memories} memor${u.memories === 1 ? "y" : "ies"}</span></button><button type="button" class="del" data-slug="${esc(u.slug)}" data-name="${esc(u.name)}" aria-label="Delete ${esc(u.name)}'s twin">✕</button></div>`).join("");
+  $("#intro-name").placeholder = list.length ? "Or a new twin: your name" : "What should I call you?";
+  document.querySelectorAll("#users .pick").forEach(b => b.addEventListener("click", () => signIn(b.dataset.name)));
+  document.querySelectorAll("#users .del").forEach(b => b.addEventListener("click", () => removeTwin(b.dataset.slug, b.dataset.name)));
+  $("#intro-name").focus();
+}
+async function signIn(name) {
+  enter(await post("/api/login", {text: name}).then(r => r.json()));
+  $("#answer").focus(); Voice.say(current()?.content, "mirror");
+}
+async function removeTwin(slugName, name) {
+  if (!confirm(`Delete ${name}'s twin and everything it remembers? This can't be undone.`)) return;
+  enter(await post("/api/delete-user", {text: slugName}).then(r => r.json()));
+}
+$("#intro-form").addEventListener("submit", e => {
+  e.preventDefault();
+  const name = $("#intro-name").value.trim();
+  if (name) signIn(name); else $("#intro-name").focus();
+});
+$("#do-logout").addEventListener("click", async () => {
+  $("#menu").hidden = true; if (S.saving) return;
+  Mic.stop(true); S.handsFree = false;
+  enter(await post("/api/logout").then(r => r.json()));
+});
+$("#do-delete").addEventListener("click", async () => {
+  $("#menu").hidden = true; if (S.saving) return;
+  const r = await fetch("/api/state").then(r => r.json()), me = (r.users || []).find(u => u.name === r.user);
+  if (me) removeTwin(me.slug, me.name);
+});
+
+/* ---------- boot ---------- */
+Voice.init();
+fetch("/api/state").then(r => r.json()).then(r => { enter(r); if (r.user) $("#answer").focus(); });
+</script>
+</body>
+</html>

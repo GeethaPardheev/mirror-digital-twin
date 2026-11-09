@@ -1,0 +1,22 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# local twin data
+twin.db*
+models/
+.env
+eval/runs/
+twins/
+archive/
+
+# demo recordings
+demo/out/
+.DS_Store
